@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FB Auto Poster - 💡 คำคม / แรงบันดาลใจ</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface2:#1a2235;
+  --border:#1e2d45;--border2:#2a3f5f;
+  --blue:#3b82f6;--blue-dim:#1d4ed8;--cyan:#22d3ee;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--pink:#ec4899;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#475569;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans Thai',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:grid;grid-template-columns:340px 1fr;grid-template-rows:56px 1fr;height:100vh;overflow:hidden}
+.topbar{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{fill:white;width:18px;height:18px}
+.logo-text{font-size:15px;font-weight:700;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.3px}
+.topbar-sep{width:1px;height:24px;background:var(--border);margin:0 4px}
+.queue-count{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.queue-count span{color:var(--cyan);font-weight:500}
+.ai-badge{background:linear-gradient(135deg,#8b5cf6,#ec4899);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:white;letter-spacing:.5px}
+.topbar-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.btn{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;font-family:var(--sans);cursor:pointer;border:none;transition:all .15s}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-success{background:var(--green);color:white}
+.btn-success:hover{filter:brightness(1.1)}
+.btn-success:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.sidebar-section{padding:14px 16px;border-bottom:1px solid var(--border)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:10px}
+.field{margin-bottom:10px}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+input[type=text],input[type=datetime-local],textarea,select{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--sans);color:var(--text);outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+textarea{resize:vertical;min-height:68px;line-height:1.5}
+.hint{font-size:11px;color:var(--text3);margin-top:4px}
+.btn-ai{width:100%;padding:12px;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:var(--sans);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden}
+.btn-ai:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn-ai:active{transform:translateY(0)}
+.btn-ai:disabled{background:var(--border2);color:var(--text3);cursor:not-allowed;filter:none;transform:none}
+.btn-ai .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite}
+.btn-ai.loading .spinner{display:block}
+.btn-ai.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px;margin-top:10px;font-size:12px;color:var(--text2);display:none}
+.status-box.show{display:block}
+.status-box .status-line{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.status-box .status-line:last-child{margin-bottom:0}
+.status-icon{font-size:14px}
+.status-icon.loading{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
+.mode-tab{padding:10px;border-radius:7px;font-size:12px;font-weight:700;font-family:var(--sans);cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text3);text-align:center;transition:all .15s}
+.mode-tab:hover{border-color:var(--border);color:var(--text2)}
+.mode-tab.active{border-color:var(--purple);color:var(--purple);background:#1a1535}
+.mode-section{display:none}
+.mode-section.show{display:block}
+
+.type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:4px}
+.type-tab{padding:7px 4px;border-radius:7px;font-size:11px;font-weight:700;font-family:var(--sans);cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text3);text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.type-tab:hover{border-color:var(--border);color:var(--text2)}
+.type-tab.active{border-color:var(--blue);color:var(--blue);background:#0d1a36}
+.type-tab .tab-icon{font-size:16px}
+.type-tab .tab-label{font-size:10px}
+
+.upload-zone{border:1.5px dashed var(--border2);border-radius:9px;padding:16px;text-align:center;cursor:pointer;position:relative;transition:all .2s;background:var(--bg)}
+.upload-zone:hover{border-color:var(--blue);background:#0d1626}
+.upload-zone.has-file{border-color:var(--green);border-style:solid}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:22px;margin-bottom:4px}
+.upload-text{font-size:12px;font-weight:600;color:var(--text2)}
+.upload-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.file-tag{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px}
+.file-tag span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+
+.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:8px}
+.sw{width:36px;height:20px;background:var(--border2);border-radius:10px;position:relative;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--blue)}
+.sw::after{content:'';position:absolute;width:14px;height:14px;background:white;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.sw.on::after{left:19px}
+.toggle-label{font-size:13px;font-weight:600;color:var(--text2)}
+.btn-add{width:100%;padding:10px;background:linear-gradient(135deg,var(--blue),#6366f1);color:white;border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:var(--sans);cursor:pointer;transition:filter .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-add:hover{filter:brightness(1.1)}
+.btn-add:active{transform:scale(.98)}
+
+.content-section{display:none}
+.content-section.show{display:block}
+
+.queue-panel{overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:0}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text3)}
+.empty-icon{font-size:48px;opacity:.3}
+.empty-text{font-size:14px}
+.queue-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;position:relative;transition:border-color .2s}
+.queue-item:hover{border-color:var(--border2)}
+.queue-item.ai-generated{border-color:#8b5cf6;background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(236,72,153,0.05))}
+.qi-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.qi-num{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--blue);background:#1d2d45;padding:3px 8px;border-radius:5px;flex-shrink:0}
+.qi-type-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;flex-shrink:0}
+.badge-video{background:#1a1535;color:var(--purple);border:1px solid #3d2a6b}
+.badge-photo{background:#0d2030;color:var(--cyan);border:1px solid #1a4060}
+.badge-album{background:#1a2a10;color:var(--green);border:1px solid #2a5020}
+.badge-text{background:#152515;color:#4ade80;border:1px solid #205020}
+.badge-ai{background:linear-gradient(135deg,#8b5cf6,#ec4899);color:white;border:none}
+.qi-file{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.qi-actions{display:flex;gap:6px;flex-shrink:0}
+.qi-btn{width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.qi-btn:hover{background:var(--surface2);color:var(--text)}
+.qi-btn.del:hover{border-color:var(--red);color:var(--red);background:#1f1015}
+.qi-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+.qi-chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qi-chip .chip-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:2px}
+.qi-chip span{color:var(--text)}
+.qi-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 8px;border-radius:6px}
+.qi-status.pending{background:#1a2235;color:var(--text2)}
+.qi-status.uploading{background:#1a2a1f;color:var(--cyan)}
+.qi-status.success{background:#0d2218;color:var(--green)}
+.qi-status.error{background:#2a1515;color:var(--red)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-pending{background:var(--text3)}
+.dot-uploading{background:var(--cyan);animation:pulse 1s infinite}
+.dot-success{background:var(--green)}
+.dot-error{background:var(--red)}
+.qi-progress{height:2px;background:var(--border);border-radius:1px;margin-top:8px;overflow:hidden;display:none}
+.qi-progress.show{display:block}
+.qi-progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:1px;transition:width .3s}
+.run-summary{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;display:none}
+.run-summary.show{display:block}
+.run-summary-title{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+.run-stats{display:flex;gap:10px}
+.run-stat{flex:1;background:var(--bg);border-radius:7px;padding:8px;text-align:center}
+.run-stat-num{font-size:22px;font-weight:700;font-family:var(--mono)}
+.run-stat-label{font-size:11px;color:var(--text3);margin-top:2px}
+.run-stat.done .run-stat-num{color:var(--green)}
+.run-stat.fail .run-stat-num{color:var(--red)}
+.run-stat.pend .run-stat-num{color:var(--text2)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* SAVE INDICATOR */
+.field{position:relative}
+.save-indicator{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--green);
+  font-size:14px;
+  opacity:0;
+  transition:opacity .3s
+}
+.save-indicator.show{
+  opacity:1;
+  animation:fadeOut 1.5s forwards
+}
+@keyframes fadeOut{0%{opacity:1}95%{opacity:1}100%{opacity:0}}
+
+.news-preview{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.news-card{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px;font-size:11px}
+.news-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.4}
+.news-card-meta{font-size:10px;color:var(--text3)}
+.cap-box{background:var(--surface2);border-radius:6px;padding:8px;margin-top:6px;font-size:11px;color:var(--text2);line-height:1.4;max-height:80px;overflow:hidden;position:relative}
+.cap-expand{font-size:10px;color:var(--blue);cursor:pointer;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.5 2h-17C2.67 2 2 2.67 2 3.5v17c0 .83.67 1.5 1.5 1.5h17c.83 0 1.5-.67 1.5-1.5v-17c0-.83-.67-1.5-1.5-1.5zM12 18.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z"/></svg>
+      </div>
+      <div class="logo-text">FB AUTO POSTER</div>
+    </div>
+    <div class="topbar-sep"></div>
+    <div class="ai-badge">v13 QUOTE</div>
+    <div class="topbar-sep"></div>
+    <div class="queue-count">คิว: <span id="queueCount">0</span></div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost" onclick="clearAll()">🗑️ ล้าง</button>
+      <button class="btn btn-success" id="runBtn" onclick="runQueue()">▶️ เริ่มโพส</button>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <!-- Config -->
+    <div class="sidebar-section">
+      <div class="section-label">การตั้งค่า Facebook</div>
+      <div class="field">
+        <label>Page Access Token</label>
+        <input type="text" id="accessToken" placeholder="EAAA..." />
+      </div>
+      <div class="field">
+        <label>Page ID</label>
+        <input type="text" id="pageId" placeholder="123456789..." />
+      </div>
+      <div class="field">
+        <label>Gemini API Key</label>
+        <input type="text" id="geminiKey" placeholder="AIza..." />
+        <div class="hint">สำหรับสร้างข่าว + เขียนแคปชั่น</div>
+      </div>
+      <div class="field">
+        <label>HuggingFace API Key</label>
+        <input type="text" id="hfKey" placeholder="hf_xxxxxxxxxxxxxx..." />
+        <div class="hint">สำหรับสร้างรูป FLUX.1-schnell — สมัครฟรีที่ <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--blue)">huggingface.co</a></div>
+      </div>
+      <div class="field">
+        <div class="hint" style="color:var(--amber);font-size:11px;background:#1a1500;border:1px solid #f59e0b44;border-radius:6px;padding:7px 10px">
+          ⚠️ เปิดไฟล์ผ่าน HTTP server (VS Code Live Server / Python http.server) เพื่อหลีกเลี่ยง CORS จาก file://
+        </div>
+      </div>
+      <div class="field">
+        <div class="hint" style="color:var(--green);font-size:11px;background:#0d2218;border:1px solid #10b98133;border-radius:6px;padding:7px 10px">
+          ✅ สร้างคำคมแรงบันดาลใจด้วย Gemini AI · สร้างรูปด้วย FLUX.1-schnell
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode Selection -->
+    <div class="sidebar-section">
+      <div class="section-label">โหมดการใช้งาน</div>
+      <div class="mode-tabs">
+        <button class="mode-tab active" onclick="setMode('auto',this)">🤖 Auto AI</button>
+        <button class="mode-tab" onclick="setMode('manual',this)">✋ Manual</button>
+      </div>
+    </div>
+
+    <!-- AUTO MODE -->
+    <div class="sidebar-section mode-section show" id="mode-auto" style="flex:1;overflow-y:auto">
+      <div class="section-label">⚡ สร้างคำคมอัตโนมัติ</div>
+      
+      <div class="field">
+        <label>จำนวนคำคมที่ต้องการสร้าง</label>
+        <select id="autoCount">
+          <option value="1">1 คำคม</option>
+          <option value="3" selected>3 คำคม</option>
+          <option value="5">5 คำคม</option>
+          <option value="10">10 คำคม</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>หัวข้อคำคม (ไม่บังคับ)</label>
+        <input type="text" id="newsTopic" placeholder="ว่างไว้ = สร้างคำคมหลากหลายหมวด"/>
+        <div class="hint">เช่น "ความสำเร็จ", "ความรัก", "ชีวิต"</div>
+      </div>
+
+      <div class="field">
+        <label>ข้อความนำหน้าลิงก์</label>
+        <input type="text" id="autoLinkPrefix" placeholder="แรงบันดาลใจ 💡👉" value="แรงบันดาลใจ 💡👉"/>
+      </div>
+
+      <button class="btn-ai" id="autoBtn" onclick="generateAutoQuote()">
+        <div class="spinner"></div>
+        <span class="btn-text">🚀 สร้างคำคมอัตโนมัติ</span>
+      </button>
+
+      <div class="status-box" id="autoStatus"></div>
+
+      <div class="news-preview" id="newsPreview"></div>
+    </div>
+
+    <!-- MANUAL MODE -->
+    <div class="sidebar-section mode-section" id="mode-manual" style="flex:1;overflow-y:auto">
+      <div class="section-label">เพิ่มโพสแบบ Manual</div>
+
+      <div class="field">
+        <label>ประเภทคอนเทนต์</label>
+        <div class="type-tabs">
+          <button class="type-tab active" onclick="setType('photo',this)">
+            <span class="tab-icon">🖼️</span>
+            <span class="tab-label">รูปภาพ</span>
+          </button>
+          <button class="type-tab" onclick="setType('video',this)">
+            <span class="tab-icon">🎬</span>
+            <span class="tab-label">วิดีโอ</span>
+          </button>
+          <button class="type-tab" onclick="setType('text',this)">
+            <span class="tab-icon">💬</span>
+            <span class="tab-label">ข้อความ</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- PHOTO -->
+      <div class="content-section show" id="sec-photo">
+        <div class="field">
+          <label>ไฟล์รูปภาพ</label>
+          <div class="upload-zone" id="uploadZonePhoto">
+            <input type="file" id="photoFile" accept="image/*" onchange="onPhotoSelect(event)"/>
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">คลิกเลือกรูปภาพ</div>
+            <div class="upload-sub">JPG, PNG, WEBP</div>
+          </div>
+          <div class="file-list" id="photoFileList"></div>
+        </div>
+        <div class="field">
+          <label>แคปชั่น</label>
+          <textarea id="photoCaption" placeholder="ข้อความประกอบรูป..."></textarea>
+        </div>
+      </div>
+
+      <!-- VIDEO -->
+      <div class="content-section" id="sec-video">
+        <div class="field">
+          <label>ไฟล์วิดีโอ</label>
+          <div class="upload-zone" id="uploadZoneVideo">
+            <input type="file" id="videoFile" accept="video/*" onchange="onVideoSelect(event)"/>
+            <div class="upload-icon">🎬</div>
+            <div class="upload-text">คลิกเลือกวิดีโอ</div>
+            <div class="upload-sub">MP4, MOV</div>
+          </div>
+          <div class="file-list" id="videoFileList"></div>
+        </div>
+        <div class="field">
+          <label>แคปชั่น</label>
+          <textarea id="videoCaption" placeholder="ข้อความประกอบ..."></textarea>
+        </div>
+      </div>
+
+      <!-- TEXT -->
+      <div class="content-section" id="sec-text">
+        <div class="field">
+          <label>ข้อความโพส</label>
+          <textarea id="textContent" placeholder="พิมพ์ข้อความ..." style="min-height:120px"></textarea>
+        </div>
+        <div class="field">
+          <label>ลิงก์แนบ (ไม่บังคับ)</label>
+          <input type="text" id="textLink" placeholder="https://..."/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>คอมเม้นลิงก์ (ไม่บังคับ)</label>
+        <input type="text" id="commentLink" placeholder="https://..."/>
+      </div>
+      <div class="field">
+        <label>ข้อความนำหน้าลิงก์</label>
+        <input type="text" id="commentText" placeholder="ดูเพิ่มเติม 👉"/>
+      </div>
+
+      <button class="btn-add" onclick="addManualToQueue()">
+        <span style="font-size:18px">+</span> เพิ่มเข้าคิว
+      </button>
+    </div>
+
+  </div>
+
+  <!-- QUEUE PANEL -->
+  <div class="queue-panel" id="queuePanel">
+    <div class="run-summary" id="runSummary">
+      <div class="run-summary-title">ผลลัพธ์การโพส</div>
+      <div class="run-stats">
+        <div class="run-stat done"><div class="run-stat-num" id="statDone">0</div><div class="run-stat-label">สำเร็จ</div></div>
+        <div class="run-stat fail"><div class="run-stat-num" id="statFail">0</div><div class="run-stat-label">ผิดพลาด</div></div>
+        <div class="run-stat pend"><div class="run-stat-num" id="statPend">0</div><div class="run-stat-label">รอโพส</div></div>
+      </div>
+    </div>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">📭</div>
+      <div class="empty-text">ยังไม่มีโพสในคิว</div>
+      <div style="font-size:12px;color:var(--text3)">เลือกโหมด Auto หรือ Manual แล้วเริ่มเลย!</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let queue = [];
+let isRunning = false;
+let currentType = 'photo';
+let currentMode = 'auto';
+let photoFile = null;
+let videoFile = null;
+
+const TYPE_LABELS = {
+  video:'วิดีโอ', photo:'รูปภาพ', text:'ข้อความ', ai:'AI News'
+};
+
+function setMode(mode, el){
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.mode-section').forEach(s=>s.classList.remove('show'));
+  document.getElementById('mode-'+mode).classList.add('show');
+}
+
+function setType(type, el){
+  currentType = type;
+  document.querySelectorAll('.type-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('show'));
+  document.getElementById('sec-'+type).classList.add('show');
+}
+
+function onPhotoSelect(e){
+  const f = e.target.files[0]; if(!f) return;
+  photoFile = f;
+  showFileTag('photoFileList', [f]);
+  document.getElementById('uploadZonePhoto').classList.add('has-file');
+}
+
+function onVideoSelect(e){
+  const f = e.target.files[0]; if(!f) return;
+  videoFile = f;
+  showFileTag('videoFileList', [f]);
+  document.getElementById('uploadZoneVideo').classList.add('has-file');
+}
+
+function showFileTag(listId, files){
+  const el = document.getElementById(listId); el.innerHTML='';
+  files.forEach(f=>{
+    el.innerHTML += `<div class="file-tag"><span>${f.name} (${fmtBytes(f.size)})</span></div>`;
+  });
+}
+
+function fmtBytes(b){
+  if(b<1048576) return (b/1024).toFixed(1)+'KB';
+  return (b/1048576).toFixed(1)+'MB';
+}
+
+function addManualToQueue(){
+  const t = currentType;
+  let item = {
+    id: Date.now(), 
+    type: t,
+    commentLink: document.getElementById('commentLink').value.trim(),
+    commentText: document.getElementById('commentText').value.trim(),
+    status:'pending', 
+    progress:0, 
+    postId:null, 
+    error:null,
+    isAI: false
+  };
+
+  if(t==='photo'){
+    if(!photoFile) return alert('⚠️ กรุณาเลือกรูปภาพ');
+    item.file = photoFile;
+    item.fileName = photoFile.name;
+    item.fileSize = photoFile.size;
+    item.caption = document.getElementById('photoCaption').value.trim();
+  } else if(t==='video'){
+    if(!videoFile) return alert('⚠️ กรุณาเลือกวิดีโอ');
+    item.file = videoFile;
+    item.fileName = videoFile.name;
+    item.fileSize = videoFile.size;
+    item.caption = document.getElementById('videoCaption').value.trim();
+  } else if(t==='text'){
+    const txt = document.getElementById('textContent').value.trim();
+    if(!txt) return alert('⚠️ กรุณาพิมพ์ข้อความ');
+    item.fileName = txt.slice(0,40)+(txt.length>40?'...':'');
+    item.caption = txt;
+    item.textLink = document.getElementById('textLink').value.trim();
+  }
+
+  // auto schedule: 1 hour from last post
+  item.scheduled = true;
+  item.schedTime = getNextScheduleTime();
+
+  queue.push(item);
+  renderQueue();
+  resetManualForm();
+}
+
+function resetManualForm(){
+  photoFile = null;
+  videoFile = null;
+  ['photoFile','videoFile'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  ['photoFileList','videoFileList'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML='';
+  });
+  ['uploadZonePhoto','uploadZoneVideo'].forEach(id=>{
+    document.getElementById(id).classList.remove('has-file');
+  });
+  ['photoCaption','videoCaption','textContent','textLink','commentLink','commentText'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+}
+
+// ============ AUTO AI NEWS ============
+async function generateAutoQuote(){
+  const geminiKey = document.getElementById('geminiKey').value.trim();
+  if(!geminiKey) return alert('⚠️ กรุณาใส่ Gemini API Key ก่อน');
+
+  const count = parseInt(document.getElementById('autoCount').value);
+  const topic = document.getElementById('newsTopic').value.trim();
+  const linkPrefix = document.getElementById('autoLinkPrefix').value.trim() || 'อ่านต่อ 👉';
+
+  const btn = document.getElementById('autoBtn');
+  const status = document.getElementById('autoStatus');
+  
+  btn.classList.add('loading');
+  btn.disabled = true;
+  status.classList.add('show');
+  status.innerHTML = '<div class="status-line"><span class="status-icon loading">🔍</span> 💡 กำลังสร้างคำคมด้วย Gemini AI...</div>';
+
+  try {
+    // ดึงข่าวทั้งหมดก่อนใน 1 call เดียว
+    status.innerHTML = '<div class="status-line"><span class="status-icon loading">🔍</span> 💡 กำลังสร้างคำคมด้วย Gemini AI...</div>';
+    const allNews = await generateAllQuotesAtOnce(geminiKey, count, topic);
+    if(!allNews || allNews.length === 0){
+      throw new Error('สร้างคำคมไม่ได้ — ตรวจสอบ Gemini API Key');
+    }
+
+    for(let i = 0; i < allNews.length; i++){
+      const newsItem = allNews[i];
+      status.innerHTML += `<div class="status-line"><span class="status-icon">📰</span> คำคมที่ ${i+1} [${newsItem.category}]: ${newsItem.title}</div>`;
+      status.innerHTML += `<div class="status-line"><span class="status-icon loading">🖼️</span> กำลังสร้างรูปภาพ...</div>`;
+
+      let imageBlob;
+      try {
+        imageBlob = await generateImageWithGemini(geminiKey, newsItem.imagePrompt);
+      } catch(imgErr){
+        status.innerHTML += `<div class="status-line" style="color:var(--amber)">⚠️ สร้างรูปไม่ได้: ${imgErr.message}</div>`;
+        continue;
+      }
+
+      const schedTime = getNextScheduleTime();
+      const SOURCE_URLS = {
+        'ไทยรัฐ':'https://www.thairath.co.th','ข่าวสด':'https://www.khaosod.co.th',
+        'มติชน':'https://www.matichon.co.th','กรุงเทพธุรกิจ':'https://www.bangkokbiznews.com',
+        'ไทยโพสต์':'https://www.thaipost.net','ผู้จัดการ':'https://mgronline.com',
+        'ประชาชาติ':'https://www.prachachat.net','เดลินิวส์':'https://www.dailynews.co.th',
+      };
+      const sourceKey = Object.keys(SOURCE_URLS).find(k => (newsItem.source||'').includes(k));
+      const safeUrl = sourceKey ? SOURCE_URLS[sourceKey] : 'https://www.thairath.co.th';
+
+      queue.push({
+        id: Date.now() + i,
+        type: 'photo',
+        file: imageBlob,
+        fileName: `AI-Quote-${i+1}.jpg`,
+        fileSize: imageBlob.size,
+        caption: newsItem.caption,
+        commentLink: safeUrl,
+        commentText: linkPrefix,
+        scheduled: true,
+        schedTime: schedTime,
+        status: 'pending',
+        progress: 0,
+        postId: null,
+        error: null,
+        isAI: true,
+        newsTitle: newsItem.title,
+        source: newsItem.source || ''
+      });
+
+      status.innerHTML += `<div class="status-line"><span class="status-icon">✅</span> เพิ่มคำคมที่ ${i+1} เข้าคิวสำเร็จ</div>`;
+      renderQueue();
+
+      if(i < allNews.length - 1) await new Promise(r => setTimeout(r, 3000));
+    }
+
+    status.innerHTML += `<div class="status-line" style="color:var(--green);font-weight:700;margin-top:8px">🎉 สร้างคำคม ${count} รายการสำเร็จ! กำลังโพสอัตโนมัติ...</div>`;
+    renderQueue();
+    await runQueue(true);
+
+  } catch(err){
+    status.innerHTML = `<div class="status-line" style="color:var(--red)">❌ ผิดพลาด: ${err.message}</div>`;
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// Helper: extract real text from Gemini 2.5 (skip thinking parts)
+function geminiText(data){
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const real = parts.find(p => p.text && !p.thought);
+  return real ? real.text : parts.map(p => p.text || '').join('');
+}
+
+// ============ SINGLE GEMINI CALL — สร้างข่าวทั้งหมดใน 1 request ============
+async function generateAllQuotesAtOnce(geminiKey, count, topic){
+  const cats = [
+    'ความสำเร็จ ความมุ่งมั่น','ความรัก ความสัมพันธ์','การพัฒนาตัวเอง Mindset','ความกล้าหาญ เผชิญความกลัว','ความสุข ชีวิตดี','ธุรกิจ การเงิน ความมั่งคั่ง','มิตรภาพ ครอบครัว','การเดินทาง ประสบการณ์ชีวิต','ความอดทน ฟื้นฟู','ความฝัน เป้าหมาย',
+  ].sort(() => Math.random() - 0.5).slice(0, count);
+
+  const selectedCats = topic ? Array(count).fill(topic) : cats;
+
+  const prompt = `คุณคือนักเขียนคำคมและนักจิตวิทยาบวก เชี่ยวชาญสร้างแรงบันดาลใจบน Social Media
+สร้างคำคมแรงบันดาลใจ ${count} รายการ แต่ละรายการอยู่ในหมวดที่ต่างกัน ดังนี้: ${selectedCats.join(', ')}
+
+สำหรับแต่ละรายการ ให้สร้างครบทุกอย่างในครั้งเดียว
+
+ตอบเป็น JSON array เท่านั้น ห้ามมี markdown backticks หรือคำอธิบายใดๆ รูปแบบ:
+[
+  {
+    "title": "คำคมหลัก (ประโยคเดียว กระชับทรงพลัง)",
+    "category": "หมวดหมู่คำคม",
+    "caption": "โพส Facebook ที่สร้างแรงบันดาลใจ โดยใช้โครงสร้าง:
+1. ✨ คำคมหลัก ใส่ตัวอักษรใหญ่หรือเน้นให้โดดเด่น
+2. 💭 ขยายความหมายและบริบท 3-4 ประโยค ว่าทำไมถึงสำคัญ
+3. 🌟 ยกตัวอย่างจริงในชีวิตที่ apply คำคมนี้ได้
+4. 💪 Call to action — ให้ผู้อ่านลองทำอะไรบางอย่างวันนี้
+5. 💬 ถามว่าคำคมนี้ resonates ไหม หรือขอให้แชร์ให้คนที่ต้องการได้อ่าน
+6. #️⃣ Hashtag 6-8 อัน ทั้งไทยและอังกฤษ เช่น #คำคม #Motivation
+ใช้ภาษาไทยผสมอังกฤษ อีโมจิเยอะ ห้ามใส่ URL",
+    "imagePrompt": "English image prompt: inspirational and uplifting scene matching the quote theme, warm golden light, minimalist composition, serene and powerful atmosphere, person silhouette in contemplative or triumphant pose, beautiful landscape or abstract background, no text or numbers"
+  }
+]`;
+
+  for(let attempt = 0; attempt < 3; attempt++){
+    if(attempt > 0){
+      const wait = 10000 * attempt;
+      await new Promise(r => setTimeout(r, wait));
+    }
+    try {
+      const r = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${geminiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.9, maxOutputTokens: 4000 }
+          })
+        }
+      );
+      if(r.status === 429){
+        continue; // retry after wait
+      }
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      const text = geminiText(data).trim();
+      const clean = text.replace(/```json|```/gi,'').trim();
+      const parsed = JSON.parse(clean);
+      if(!Array.isArray(parsed) || parsed.length === 0) throw new Error('ไม่ได้รับข้อมูลข่าว');
+      // strip any URLs from captions
+      parsed.forEach(item => {
+        if(item.caption) item.caption = item.caption.replace(/https?:\/\/[^\s)]+/g,'').replace(/www\.[^\s)]+/g,'').trim();
+      });
+      return parsed;
+    } catch(e){
+      if(attempt === 2) throw e;
+    }
+  }
+  throw new Error('Gemini rate limit — ลองใหม่ใน 1 นาที');
+}
+
+// Generate Thai caption using Gemini (with retry on 429)
+async function generateThaiCaption(content, title){
+  const geminiKey = document.getElementById('geminiKey').value.trim();
+  for(let attempt = 0; attempt < 3; attempt++){
+    if(attempt > 0) await new Promise(r => setTimeout(r, 3000 * attempt));
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${geminiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: `คุณคือนักเขียน Social Media มืออาชีพ เชี่ยวชาญการเขียนโพสข่าวที่ทำให้คนหยุดสายตา อยากอ่าน อยากแชร์ และอยากคอมเม้น
+
+ข่าวนี้: ${title}
+เนื้อหา: ${content}
+
+เขียนแคปชั่น Facebook ที่ยาวและละเอียด โดยใช้โครงสร้างนี้:
+
+1. 🔥 ประโยคเปิด "HOOK" สุดพลัง 2-3 บรรทัด (ตั้งคำถามที่ทำให้คนสงสัย / เปิดด้วยข้อเท็จจริงที่น่าตกใจ / ใช้ตัวเลขหรือสถิติที่โดดเด่น) — ห้ามเริ่มด้วย "ข่าวประจำวัน" หรือ "วันนี้"
+
+2. 📰 อธิบายเนื้อหาข่าวอย่างละเอียด 5-7 ประโยค ครอบคลุมทุกมิติ ใคร ทำอะไร ที่ไหน เมื่อไหร่ ทำไม และส่งผลอะไร เขียนให้คนที่ไม่รู้เรื่องนี้มาก่อนเข้าใจได้ทันที
+
+3. 💡 วิเคราะห์ผลกระทบหรือบริบทที่น่าสนใจ 2-3 ประโยค เช่น ส่งผลต่อชีวิตประจำวันยังไง มีนัยสำคัญอะไร หรือเชื่อมกับเทรนด์ที่ใหญ่กว่า
+
+4. 💬 ถามความเห็นคนอ่านอย่างเจาะจง 1-2 ประโยค ให้เกี่ยวกับเนื้อหาข่าวโดยตรง ไม่ใช่คำถามทั่วไป
+
+5. #️⃣ Hashtag ที่เฉพาะเจาะจงกับเนื้อหาข่าว 6-8 อัน (ทั้งไทยและอังกฤษ)
+
+ใช้อีโมจิที่เหมาะกับอารมณ์ของแต่ละส่วน เพื่อทำให้อ่านง่ายและดึงดูดสายตา
+
+⛔ กฎเหล็กที่ต้องทำตามเด็ดขาด:
+- ห้ามใส่ URL หรือลิงก์ใดๆ ทั้งสิ้น (ไม่ว่าจะเป็น http, https, www, หรือชื่อเว็บไซต์)
+- ห้ามพิมพ์คำว่า "อ่านต่อ" "อ่านเพิ่มเติม" หรือประโยคที่ชี้ไปหาลิงก์
+- ห้ามใส่ [ใส่ลิงก์ข่าว] หรือวงเล็บเหลี่ยมใดๆ
+- ตอบเป็นแคปชั่นเท่านั้น ห้ามมีคำอธิบายหรือ prefix ใดๆ`
+          }]
+        }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 2000 }
+      })
+    });
+    if(response.status === 429) continue;
+    const data = await response.json();
+    let caption = geminiText(data) || '';
+    // Safety net: strip any URLs that slipped through
+    caption = caption.replace(/https?:\/\/[^\s\)]+/g, '').replace(/www\.[^\s\)]+/g, '').trim();
+    if(caption) return caption;
+  }
+  return `📰 ${title}\n\n${content.slice(0, 100)}...`;
+}
+
+// Generate image prompt using Gemini
+async function generateImagePrompt(content, title){
+  const geminiKey = document.getElementById('geminiKey').value.trim();
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${geminiKey}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+            text: `วิเคราะห์ข่าวนี้แล้วสร้าง image prompt ภาษาอังกฤษที่ละเอียดและสมจริงมากสำหรับ AI image generation:
+
+หัวข้อ: ${title}
+เนื้อหา: ${content}
+
+กฎการสร้าง prompt (สำคัญมาก):
+- วิเคราะห์ว่าข่าวนี้เกี่ยวกับอะไร แล้วระบุ scene ที่สื่อถึงเนื้อหาได้โดยตรงและชัดเจน
+- ระบุ subject หลัก สภาพแวดล้อม แสง สี และ texture อย่างละเอียด
+- ระบุมุมกล้อง เช่น wide shot, close-up, aerial view, eye-level
+- ระบุสภาพแสง เช่น golden hour sunlight, overcast dramatic sky, neon-lit night, soft studio light
+- ระบุบรรยากาศและอารมณ์: urgent and tense, hopeful and bright, somber and serious, celebratory
+- ระบุสไตล์: ultra-photorealistic, shot on Canon EOS R5, 24mm lens, f/2.8, shallow depth of field, editorial press photography
+- ห้ามมีตัวหนังสือ ตัวเลข หรือ text ใดๆ ในรูปเด็ดขาด
+- ถ้ามีคนในรูปให้ใช้ silhouette หรือ back view เท่านั้น ห้ามเห็นหน้า
+- ความยาว 4-5 ประโยคละเอียด
+
+ส่งกลับเฉพาะ prompt ภาษาอังกฤษเท่านั้น ไม่มีคำอธิบายใดๆ`
+        }]
+      }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 200 }
+    })
+  });
+
+  const data = await response.json();
+  const prompt = geminiText(data) || '';
+  return prompt.trim() || `Professional news illustration about ${title}, modern style, vibrant colors`;
+}
+
+// Generate image using HuggingFace FLUX.1-schnell
+// Tries multiple endpoints ที่รองรับ CORS จาก file://
+async function generateImageWithGemini(apiKey, prompt){
+  const hfKey = document.getElementById('hfKey').value.trim();
+  if(!hfKey) throw new Error('กรุณาใส่ HuggingFace API Key ในการตั้งค่า');
+
+  // Endpoint list — ลองตามลำดับ
+  const endpoints = [
+    // 1. Inference Providers (newer API — better CORS)
+    {
+      url: 'https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell',
+      headers: { 'Authorization': `Bearer ${hfKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputs: prompt, parameters: { width: 1024, height: 576 } })
+    },
+    // 2. Classic Inference API
+    {
+      url: 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
+      headers: { 'Authorization': `Bearer ${hfKey}`, 'Content-Type': 'application/json', 'x-use-cache': 'false' },
+      body: JSON.stringify({ inputs: prompt, parameters: { width: 1024, height: 576 } })
+    },
+    // 3. Schnell dev variant
+    {
+      url: 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev',
+      headers: { 'Authorization': `Bearer ${hfKey}`, 'Content-Type': 'application/json', 'x-use-cache': 'false' },
+      body: JSON.stringify({ inputs: prompt })
+    },
+  ];
+
+  let lastErr = '';
+  for(const ep of endpoints){
+    try {
+      const r = await fetch(ep.url, {
+        method: 'POST',
+        headers: ep.headers,
+        body: ep.body,
+        signal: AbortSignal.timeout(90000)
+      });
+      if(!r.ok){
+        const txt = await r.text();
+        let msg = `HTTP ${r.status}`;
+        try { msg = JSON.parse(txt).error || msg; } catch{}
+        // 503 = model loading, retry message included
+        if(r.status === 503) throw new Error(`Model กำลัง load (${msg}) — ลองใหม่อีกครั้ง`);
+        throw new Error(msg);
+      }
+      const blob = await r.blob();
+      if(!blob || blob.size < 500) throw new Error('รูปที่ได้รับเล็กเกินไป');
+      return blob;
+    } catch(e){
+      lastErr = e.message;
+      // ถ้า CORS error ลอง endpoint ต่อไป
+      if(e.message.includes('CORS') || e.message.includes('Failed to fetch') || e.message.includes('NetworkError')){
+        continue;
+      }
+      throw e; // error อื่น throw ทันที
+    }
+  }
+  throw new Error(`สร้างรูปไม่ได้ทุก endpoint: ${lastErr}\n\n💡 แก้: เปิดไฟล์ผ่าน HTTP server แทน file:// เช่น ลาก HTML ใส่ VS Code แล้วกด Live Server`);
+}
+
+// Get next schedule time (1 hour from last post)
+function getNextScheduleTime(){
+  const now = new Date();
+  const lastPost = queue.length > 0 ? 
+    queue.filter(q => q.schedTime).sort((a,b) => new Date(b.schedTime) - new Date(a.schedTime))[0] : 
+    null;
+  
+  let nextTime;
+  if(lastPost && lastPost.schedTime){
+    nextTime = new Date(new Date(lastPost.schedTime).getTime() + (40 + Math.floor(Math.random() * 21)) * 60 * 1000);
+  } else {
+    nextTime = new Date(now.getTime() + 15*60*1000); // +15 min from now
+  }
+
+  return toLocalISO(nextTime);
+}
+
+function toLocalISO(d){
+  const off = d.getTimezoneOffset()*60000;
+  return new Date(d-off).toISOString().slice(0,16);
+}
+
+function fmtDate(isoStr){
+  if(!isoStr) return '-';
+  return new Date(isoStr).toLocaleString('th-TH',{
+    day:'2-digit',
+    month:'short',
+    year:'2-digit',
+    hour:'2-digit',
+    minute:'2-digit'
+  });
+}
+
+function toggleCaption(id){
+  const box = document.getElementById('captext-'+id);
+  const btn = document.getElementById('capbtn-'+id);
+  if(!box) return;
+  if(box.style.maxHeight === 'none'){
+    box.style.maxHeight = '80px';
+    btn.textContent = '▼ ดูเพิ่มเติม';
+  } else {
+    box.style.maxHeight = 'none';
+    btn.textContent = '▲ ย่อ';
+  }
+}
+
+function deleteQueueItem(id){
+  queue = queue.filter(q => q.id !== id);
+  renderQueue();
+}
+
+function renderQueue(){
+  const panel = document.getElementById('queuePanel');
+  const empty = document.getElementById('emptyState');
+  const count = document.getElementById('queueCount');
+  
+  count.textContent = queue.length;
+  
+  if(!queue.length){
+    empty.style.display = 'flex';
+    const items = panel.querySelectorAll('.queue-item');
+    items.forEach(el=>el.remove());
+    return;
+  }
+  
+  empty.style.display = 'none';
+  
+  // Clear and rebuild
+  const items = panel.querySelectorAll('.queue-item');
+  items.forEach(el=>el.remove());
+  
+  queue.forEach((q,idx)=>{
+    const el = document.createElement('div');
+    el.className = 'queue-item' + (q.isAI ? ' ai-generated' : '');
+    el.id = 'qitem-'+q.id;
+    
+    const typeLabel = TYPE_LABELS[q.type] || q.type;
+    const badgeClass = 'badge-'+(q.type==='text'?'text':q.type);
+    const aiTag = q.isAI ? '<span class="qi-type-badge badge-ai">🤖 AI</span>' : '';
+    
+    const statusDot = {
+      pending:'dot-pending', uploading:'dot-uploading', 
+      success:'dot-success', error:'dot-error'
+    }[q.status] || 'dot-pending';
+    const statusText = {
+      pending:'รอโพส', uploading:'กำลังโพส...', 
+      success:'โพสสำเร็จ', error:'ผิดพลาด'
+    }[q.status] || 'รอโพส';
+    
+    const progressHTML = q.status==='uploading' ? 
+      `<div class="qi-progress show"><div class="qi-progress-fill" id="progfill-${q.id}" style="width:${q.progress||0}%"></div></div>` : '';
+    
+    const captionPreview = q.caption ? 
+      `<div class="cap-box" id="captext-${q.id}" style="max-height:80px">${q.caption}</div>
+       <div class="cap-expand" id="capbtn-${q.id}" onclick="toggleCaption(${q.id})">▼ ดูเพิ่มเติม</div>` : '';
+    
+    el.innerHTML = `
+      <div class="qi-header">
+        <div class="qi-num">#${idx+1}</div>
+        <span class="qi-type-badge ${badgeClass}">${typeLabel}</span>
+        ${aiTag}
+        <div class="qi-file">${q.fileName || 'Untitled'}</div>
+        <div class="qi-actions">
+          <button class="qi-btn del" onclick="deleteQueueItem(${q.id})">🗑️</button>
+        </div>
+      </div>
+      <div class="qi-meta">
+        <div class="qi-chip"><span class="chip-label">เวลาโพส</span><span>${fmtDate(q.schedTime)}</span></div>
+        <div class="qi-chip"><span class="chip-label">ขนาด</span><span>${q.fileSize ? fmtBytes(q.fileSize) : '-'}</span></div>
+      </div>
+      ${captionPreview}
+      <div class="qi-status ${q.status}">
+        <span class="dot ${statusDot}"></span>${statusText}
+        ${q.error?'<span style="color:var(--red);font-size:11px;margin-left:4px">'+q.error+'</span>':''}
+      </div>
+      ${progressHTML}
+    `;
+    
+    panel.appendChild(el);
+  });
+  
+  updateStats();
+}
+
+function updateItemStatus(id, status, extra={}){
+  const item = queue.find(q=>q.id===id);
+  if(!item) return;
+  item.status = status;
+  Object.assign(item, extra);
+  renderQueue();
+}
+
+function updateStats(){
+  const done = queue.filter(q=>q.status==='success').length;
+  const fail = queue.filter(q=>q.status==='error').length;
+  const pend = queue.filter(q=>q.status==='pending').length;
+  
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statFail').textContent = fail;
+  document.getElementById('statPend').textContent = pend;
+  
+  if(done>0 || fail>0){
+    document.getElementById('runSummary').classList.add('show');
+  }
+}
+
+function clearAll(){
+  if(!queue.length) return;
+  if(!confirm('ล้างคิวทั้งหมด?')) return;
+  queue=[];
+  document.getElementById('runSummary').classList.remove('show');
+  renderQueue();
+}
+
+// ============ POST TO FACEBOOK ============
+async function runQueue(silent=false){
+  const token=document.getElementById('accessToken').value.trim();
+  const pageId=document.getElementById('pageId').value.trim();
+  if(!token){ if(!silent) alert('⚠️ กรุณาใส่ Access Token'); return; }
+  if(!pageId){ if(!silent) alert('⚠️ กรุณาใส่ Page ID'); return; }
+  
+  const pending=queue.filter(q=>q.status==='pending');
+  if(!pending.length){ if(!silent) alert('ไม่มีโพสที่รอในคิว'); return; }
+  
+  isRunning=true; 
+  document.getElementById('runBtn').disabled=true;
+  
+  for(const item of pending){
+    await postItem(item,token,pageId);
+    await new Promise(r=>setTimeout(r,2000));
+  }
+  
+  isRunning=false; 
+  document.getElementById('runBtn').disabled=false; 
+  renderQueue();
+}
+
+async function postItem(item,token,pageId){
+  updateItemStatus(item.id,'uploading',{progress:10});
+  const pf=()=>document.getElementById('progfill-'+item.id);
+  const setP=p=>{ 
+    item.progress=p; 
+    if(pf()) pf().style.width=p+'%'; 
+  };
+
+  try{
+    let postId;
+
+    if(item.type==='video'){
+      const fd=new FormData();
+      fd.append('file',item.file);
+      fd.append('description',item.caption||'');
+      fd.append('access_token',token);
+      appendSchedule(fd,item);
+      setP(30);
+      
+      const r=await fetch(`https://graph-video.facebook.com/v19.0/${pageId}/videos`,{
+        method:'POST',
+        body:fd
+      });
+      setP(75);
+      const d=await r.json();
+      if(d.error) throw new Error(d.error.message);
+      postId=d.id;
+
+    } else if(item.type==='photo'){
+      const fd=new FormData();
+      fd.append('source',item.file);
+      fd.append('caption',item.caption||'');
+      fd.append('access_token',token);
+      appendSchedule(fd,item);
+      setP(30);
+      
+      const r=await fetch(`https://graph.facebook.com/v19.0/${pageId}/photos`,{
+        method:'POST',
+        body:fd
+      });
+      setP(75);
+      const d=await r.json();
+      if(d.error) throw new Error(d.error.message);
+      postId=d.id||d.post_id;
+
+    } else if(item.type==='text'){
+      const body={
+        message:item.caption,
+        access_token:token
+      };
+      if(item.textLink) body.link=item.textLink;
+      appendScheduleJSON(body,item);
+      setP(30);
+      
+      const r=await fetch(`https://graph.facebook.com/v19.0/${pageId}/feed`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(body)
+      });
+      setP(75);
+      const d=await r.json();
+      if(d.error) throw new Error(d.error.message);
+      postId=d.id;
+    }
+
+      // Comment with link — โพสลิงก์เป็น comment เสมอ ไม่ใส่ใน caption
+      if(item.commentLink){
+        const msg = (item.commentText ? item.commentText+' ' : '') + item.commentLink;
+        await fetch(`https://graph.facebook.com/v19.0/${postId}/comments`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            message: msg,
+            access_token: token
+          })
+        });
+      }
+
+    setP(100);
+    updateItemStatus(item.id,'success',{postId,progress:100});
+
+  } catch(err){
+    updateItemStatus(item.id,'error',{error:err.message});
+  }
+}
+
+function appendSchedule(fd,item){
+  if(item.scheduled){
+    const ts=Math.floor(new Date(item.schedTime).getTime()/1000);
+    if(!ts||isNaN(ts)) throw new Error('เวลาโพสไม่ถูกต้อง');
+    fd.append('published',false);
+    fd.append('scheduled_publish_time',ts);
+  } else {
+    fd.append('published',true);
+  }
+}
+
+function appendScheduleJSON(body,item){
+  if(item.scheduled){
+    const ts=Math.floor(new Date(item.schedTime).getTime()/1000);
+    if(!ts||isNaN(ts)) throw new Error('เวลาโพสไม่ถูกต้อง');
+    body.published=false;
+    body.scheduled_publish_time=ts;
+  }
+}
+
+// ============ AUTO-SAVE FORM FIELDS ============
+const FIELDS_TO_SAVE = [
+  'accessToken','pageId','geminiKey','hfKey',
+  'autoCount','newsTopic','autoLinkPrefix',
+  'photoCaption','videoCaption','textContent','textLink','commentLink','commentText'
+];
+const STORAGE_KEY = 'fb-auto-poster-quote-fields';
+
+function saveFormField(fieldId){
+  const el = document.getElementById(fieldId);
+  if(!el) return;
+  
+  const data = getStoredFields();
+  data[fieldId] = el.value || '';
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  
+  showSaveIndicator(fieldId);
+}
+
+function loadFormFields(){
+  const data = getStoredFields();
+  FIELDS_TO_SAVE.forEach(fieldId => {
+    const el = document.getElementById(fieldId);
+    if(el && data[fieldId]) el.value = data[fieldId];
+  });
+}
+
+function getStoredFields(){
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+  } catch(e){
+    return {};
+  }
+}
+
+function showSaveIndicator(fieldId){
+  let indicator = document.getElementById('save-' + fieldId);
+  if(!indicator){
+    const el = document.getElementById(fieldId);
+    if(!el) return;
+    indicator = document.createElement('span');
+    indicator.id = 'save-' + fieldId;
+    indicator.className = 'save-indicator';
+    indicator.textContent = '✅';
+    el.parentElement.appendChild(indicator);
+  }
+  indicator.classList.remove('show');
+  setTimeout(() => indicator.classList.add('show'), 10);
+}
+
+// Attach event listeners to all fields
+FIELDS_TO_SAVE.forEach(fieldId => {
+  const el = document.getElementById(fieldId);
+  if(el){
+    el.addEventListener('change', () => saveFormField(fieldId));
+    el.addEventListener('input', () => saveFormField(fieldId));
+  }
+});
+
+// Load saved fields on page ready
+loadFormFields();
+
+renderQueue();
+</script>
+</body>
+</html>
